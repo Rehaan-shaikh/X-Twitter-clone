@@ -14,14 +14,14 @@ export default function RightSidebar() {
   };
   return (
     <>
-      <div className='sticky top-0 bg-white py-2'>
+      <div className='sticky top-0 py-2 pb-6'>
         <form onSubmit={handleSubmit}>
           <input
             type='text'
             placeholder='Search'
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className='bg-gray-100 border border-gray-200 rounded-3xl text-sm w-full px-4 py-2'
+            className=' border rounded-3xl text-sm w-full px-4 py-2'
           />
         </form>
       </div>

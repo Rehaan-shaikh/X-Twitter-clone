@@ -11,7 +11,7 @@ export default function News() {
       .then((data) => setNews(data.articles));
   }, []);
   return (
-    <div className='text-gray-700 space-y-3 bg-gray-100 rounded-xl pt-2'>
+    <div className='text-gray-700 space-y-3 bg-transparent rounded-xl pt-2 border border-gray-500'>
       <h4 className='font-bold text-xl px-4'>Whats happening</h4>
       {news.slice(0, articleNum).map((article) => (
         <div key={article.url}>
