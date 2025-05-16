@@ -43,7 +43,8 @@ export async function SignIn(prevstate, formData) {
       return { error: 'Incorrect password' };
     }
 
-    cookies().set('user_id', user.id, {
+    const cookieStore = await cookies();  // <-- await here
+    cookieStore.set('user_id', user.id, {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
@@ -55,5 +56,23 @@ export async function SignIn(prevstate, formData) {
   } catch (err) {
     console.error(err);
     return { error: 'Something went wrong' };
+  }
+}
+
+export const SignOut = async () => {
+  try {
+    const cookieStore = await cookies(); // <-- await here
+    cookieStore.set('user_id', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 0 // delete immediately
+    });
+
+    return { success: true, message: 'Logged out successfully' };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Logout failed' };
   }
 }

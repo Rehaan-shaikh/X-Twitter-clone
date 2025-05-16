@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Page() {
+
   const [formState, formAction] = useActionState(SignUp, {});
   const router = useRouter();
 
