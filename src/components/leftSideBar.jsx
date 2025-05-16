@@ -1,12 +1,6 @@
 import Link from 'next/link';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiHome } from 'react-icons/hi';
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignOutButton,
-} from '@clerk/nextjs';
 
 export default function Sidebar() {
   return (
@@ -28,21 +22,19 @@ export default function Sidebar() {
 
         {/* Auth Buttons */}
         <div className='hidden xl:inline'>
-          <SignedIn>
-            <SignOutButton>
-              <button className='bg-blue-400 text-white rounded-full hover:brightness-95 transition-all duration-200 w-48 h-9 shadow-md font-semibold'>
-                Sign Out
-              </button>
-            </SignOutButton>
-          </SignedIn>
 
-          <SignedOut>
-            <SignInButton>
-              <button className='bg-blue-400 text-white rounded-full hover:brightness-95 transition-all duration-200 w-48 h-9 shadow-md font-semibold'>
+              <Link
+              href='/sign-in' 
+              className="bg-blue-400 text-white rounded-full hover:brightness-95 transition-all duration-200 w-48 h-9 shadow-md font-semibold flex items-center justify-center">
                 Sign In
-              </button>
-            </SignInButton>
-          </SignedOut>
+              </Link>
+
+              <Link
+              href='/sign-out' 
+              className="bg-blue-400 text-white rounded-full hover:brightness-95 transition-all duration-200 w-48 h-9 shadow-md font-semibold flex items-center justify-center">
+                Sign Out
+              </Link>
+
         </div>
       </div>
     </div>

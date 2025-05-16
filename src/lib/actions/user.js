@@ -1,40 +1,59 @@
-import User from "../modle/user.modle";
-import { connect } from "../mongodb/mongoose";
+'use server';
 
-export const createOrUpdateUser = async (
-  id,
-  first_name,
-  last_name,
-  image_url,
-  email_addresses,
-  username
-)=>{
-    try{
-        await connect();
-        const data =await User.findOneAndUpdate(
-      { clerkId: id },
-      {
-        $set: {
-          firstName: first_name,
-          lastName: last_name,
-          avatar: image_url,
-          email: email_addresses[0].email_address,
-          username,
-        },
+import { prisma } from '@/lib/prisma/prisma';
+import { cookies } from 'next/headers';
+
+export async function SignUp(prevState, formData) {
+  const email = formData.get('email');
+  const username = formData.get('username');
+  const password = formData.get('password');
+  console.log(password)
+
+  if (!email || !username || !password) {
+    return { error: 'All fields are required' };
+  }
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        password, 
       },
-      { new: true, upsert: true }
-    );
-    return data;
-    }catch(error){
-        console.log("error creating object" ,error)
-    }
+    });
+
+    return { success: true, user };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Something went wrong!' };
+  }
 }
 
-export const deleteUser = async (id) => {
+export async function SignIn(prevstate, formData) {
+  const email = formData.get('email');
+  const password = formData.get('password'); 
   try {
-    await connect();
-    await User.findOneAndDelete({ clerkId: id });
-  } catch (error) {
-    console.log('Error deleting user:', error);
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return { error: 'User not found' };
+    }
+
+    if (user.password !== password) {
+      return { error: 'Incorrect password' };
+    }
+
+    cookies().set('user_id', user.id, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7 // 1 week
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Something went wrong' };
   }
-};
+}
