@@ -7,18 +7,28 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function Page() {
-
   const [formState, formAction] = useActionState(SignUp, {});
   const router = useRouter();
 
+  const [avatarPreview, setAvatarPreview] = useState(null);
+
   useEffect(() => {
-    if (formState?.success) {
+    if (formState && formState.success) {
       router.push('/sign-in'); // client-side redirect
     }
-  }, [formState?.success, router]);
+  }, [formState, router]);
+
+  function handleAvatarChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setAvatarPreview(URL.createObjectURL(file));
+    } else {
+      setAvatarPreview(null);
+    }
+  }
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -44,17 +54,35 @@ export default function Page() {
             <Input name="username" placeholder="Enter your User Name" />
 
             <Label className="mb-1">Email</Label>
-            <Input name="email" placeholder="Enter your Email" />
+            <Input type="email" name="email" placeholder="Enter your email" required />
 
             <Label className="mb-1">Password</Label>
-            <Input name="password" placeholder="Enter your Password" />
+            <Input name="password" type="password" placeholder="Enter your Password" />
+
+            <Label className="mb-1">Avatar</Label>
+            <div className="flex items-center gap-4">
+              <Input
+                name="avatar"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="w-full"
+              />
+              {avatarPreview && (
+                <img
+                  src={avatarPreview}
+                  alt="Avatar Preview"
+                  className="w-16 h-16 rounded-full object-cover border"
+                />
+              )}
+            </div>
           </div>
         </div>
 
-        {formState?.error && (
+        {formState && formState.error && (
           <p className="text-red-500 text-sm mt-2">{formState.error}</p>
         )}
-        {formState?.success && (
+        {formState && formState.success && (
           <p className="text-green-600 text-sm mt-2">Account created successfully!</p>
         )}
 

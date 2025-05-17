@@ -2,23 +2,34 @@
 
 import { prisma } from '@/lib/prisma/prisma';
 import { cookies } from 'next/headers';
+import { uploadImage } from '../../../middleware';
 
 export async function SignUp(prevState, formData) {
   const email = formData.get('email');
   const username = formData.get('username');
   const password = formData.get('password');
-  console.log(password)
+  const image = formData.get('avatar')
+  console.log(image)
+  const url = await uploadImage(image)
+  console.log(url)
 
   if (!email || !username || !password) {
     return { error: 'All fields are required' };
   }
-
+  if(email.trim()=='' || username.trim()=='' || password.trim()==''){
+    return { error: "field are empty"}
+  }
+  if(!email.includes('@')){
+    return { error: 'email should have @'}
+  }
   try {
+    const url = await uploadImage(image)
     const user = await prisma.user.create({
       data: {
         email,
         username,
         password, 
+        avatar: url
       },
     });
 

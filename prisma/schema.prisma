@@ -12,6 +12,7 @@ model User {
   username  String   @unique
   email     String   @unique
   password  String
+  avatar    String
 
   followers User[] @relation("UserFollows") // users who follow this user
   following User[] @relation("UserFollows") // users this user follows

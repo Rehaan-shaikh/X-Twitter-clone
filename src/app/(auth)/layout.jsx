@@ -11,6 +11,7 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
   const user = cookieStore.get("user_id");
+  console.log(cookieStore.get("user_id"))
 
 
   if (user) redirect('/');
