@@ -1,7 +1,7 @@
 'use client';
 
 import { HiOutlinePhotograph } from 'react-icons/hi';
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { Post } from '@/lib/actions/post';
 
 export default function Input({ user }) {
@@ -17,6 +17,12 @@ export default function Input({ user }) {
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
+
+  useEffect(() => {
+  if (formState.success) {
+    location.reload(); // 🔄 Reload the page
+  }
+  }, [formState.success]);
 
   return (
     <form action={formAction}>

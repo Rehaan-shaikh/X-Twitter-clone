@@ -28,3 +28,12 @@ export async function Post(prevState, formData) {
 
   return { success: true };
 }
+
+export async function getallPosts() {
+  const feedPosts = await prisma.post.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  return feedPosts
+}
