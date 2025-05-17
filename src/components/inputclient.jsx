@@ -57,7 +57,7 @@ export default function Input({ user }) {
               hidden
               onChange={addImageToPost}
             />
-            <input name='userid' defaultValue={user.id} hidden />
+            <input name='user' defaultValue={JSON.stringify(user)} hidden />
             <button
               type="submit"
               disabled={formState.submitting}
