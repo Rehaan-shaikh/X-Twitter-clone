@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import moment from 'moment';
-import Icons from './icons';;
+import Icons from './icons';import { cookies } from 'next/headers';
+;
 
-export default function Post({ post }) {
+export default async function Post({ post }) {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('user_id')?.value;
   return (
     <div className='flex p-3 border-b border-gray-200 w-full hover:bg-gray-50'>
       <Link href={`/users/${post?.username}`}>
@@ -34,7 +37,7 @@ export default function Post({ post }) {
         <Link href={`/posts/${post?._id}`}>
           <img src={post?.image} className='rounded-2xl mr-2' />
         </Link>
-        <Icons post={post} id={post._id} />
+        <Icons post={post} id={post.id} currentUserId={userId} />
       </div>
     </div>
   );

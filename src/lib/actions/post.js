@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma/prisma';
 import { uploadImage } from '../../../middleware';
+import { cookies } from 'next/headers';
 
 export async function Post(prevState, formData) {
   const content = formData.get('content');
@@ -36,4 +37,32 @@ export async function getallPosts() {
       },
     });
   return feedPosts
+}
+
+export async function toggleLikePost(postId) {
+  const cookieStore = cookies();
+  const userId = cookieStore.get('user_id')?.value;
+
+  if (!userId) return { error: 'Unauthorized' };
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: { likes: true },
+  });
+
+  const alreadyLiked = post.likes.some((user) => user.id === userId);
+
+  const updatedPost = await prisma.post.update({
+    where: { id: postId },
+    data: {
+      likes: {
+        [alreadyLiked ? 'disconnect' : 'connect']: { id: userId },
+      },
+    },
+    include: {
+      likes: true,
+    },
+  });
+
+  return { success: true, likes: updatedPost.likes };
 }
