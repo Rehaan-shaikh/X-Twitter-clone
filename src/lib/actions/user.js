@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma/prisma';
 import { cookies } from 'next/headers';
 import { uploadImage } from '../../../middleware';
+import { revalidatePath } from 'next/cache';
 
 export async function SignUp(prevState, formData) {
   const email = formData.get('email');
@@ -94,8 +95,8 @@ export async function getCurrentUser() {
   const cookieStore = await cookies(); // ✅ await here
   const userId = cookieStore.get('user_id')?.value;
 
-  console.log(userId, ' i am id');
-  console.log(cookieStore.get('user_id'), ' i am cookie');
+  // console.log(userId, ' i am id');
+  // console.log(cookieStore.get('user_id'), ' i am cookie');
 
   if (!userId) return null;
 
@@ -112,3 +113,65 @@ export async function getCurrentUser() {
   return user;
 }
 
+
+export async function UpdateUserProfile(formData) {
+  try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('user_id')?.value;
+    if (!userId) return { error: 'Not authenticated' };
+
+    const username = formData.get('username');
+    const newPassword = formData.get('password');
+    const currentPassword = formData.get('currentPassword');
+    const image = formData.get('avatar'); // Might be File or null
+
+    let updateData = {};
+
+    // Fetch current user from DB to check password
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return { error: 'User not found' };
+    }
+
+    if (username && username.trim() !== '') {
+      updateData.username = username;
+    }
+
+    // Password change logic with verification
+    if (newPassword && newPassword.trim() !== '') {
+      if (!currentPassword || currentPassword.trim() === '') {
+        return { error: 'Please provide your current password to change it.' };
+      }
+
+    // Simple check (only if passwords are plain text in DB, NOT recommended)
+    if (currentPassword !== user.password) {
+      return { error: 'Current password is incorrect.' };
+    }
+    updateData.password = newPassword;
+
+    }
+
+    if (image && image.size > 0) {
+      const avatarUrl = await uploadImage(image);
+      updateData.avatar = avatarUrl;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return { error: 'No valid data to update' };
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+    revalidatePath('/');
+
+    return { success: true, user: updatedUser };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Profile update failed' };
+  }
+}

@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiHome } from 'react-icons/hi';
+import MiniProfile from './miniProfile';
 
-export default function Sidebar() {
+export default function Sidebar({user}) {
     const router = useRouter();
 
   async function handleSignOut() {
@@ -44,6 +45,9 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
+      <div className="w-full px-3 py-4 border-t border-gray-200">
+        <MiniProfile user={user} />
+      </div>    
     </div>
   );
 }
