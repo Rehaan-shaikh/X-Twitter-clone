@@ -40,7 +40,7 @@ export async function getallPosts() {
 }
 
 export async function toggleLikePost(postId) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const userId = cookieStore.get('user_id')?.value;
 
   if (!userId) return { error: 'Unauthorized' };
@@ -65,4 +65,31 @@ export async function toggleLikePost(postId) {
   });
 
   return { success: true, likes: updatedPost.likes };
+}
+
+export async function deletePost(postId) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get('user_id')?.value;
+
+  if (!userId) {
+    return { error: 'Unauthorized' };
+  }
+
+  try {
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return { error: 'Post not found' };
+    }
+
+    if (post.userId !== userId) {
+      return { error: 'Forbidden' };
+    }
+
+    await prisma.post.delete({ where: { id: postId } });
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    return { error: 'Something went wrong' };
+  }
 }

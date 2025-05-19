@@ -8,8 +8,8 @@ import {
 } from 'react-icons/hi';
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { toggleLikePost } from '@/lib/actions/post';
-// import { toggleLikePost } from '@/actions/postActions'; // path depends on your structure
+import { deletePost, toggleLikePost } from '@/lib/actions/post';
+
 
 export default function Icons({ post, currentUserId }) {
   const [likes, setLikes] = useState(post.likes || []);
@@ -35,6 +35,18 @@ export default function Icons({ post, currentUserId }) {
     });
   };
 
+  const handleDelete = async () => {
+    const confirmed = confirm('Are you sure you want to delete this post?');
+    if (!confirmed) return;
+
+    const res = await deletePost(post.id);
+    if (res.success) {
+      router.refresh(); 
+    } else {
+      alert(res.error || 'Failed to delete');
+    }
+  };
+
   return (
     <div className='flex justify-start gap-5 p-2 text-gray-500'>
       <HiOutlineChat className='h-8 w-8 cursor-pointer rounded-full p-2 hover:text-sky-500 hover:bg-sky-100' />
@@ -56,7 +68,12 @@ export default function Icons({ post, currentUserId }) {
           </span>
         )}
       </div>
-      <HiOutlineTrash className='h-8 w-8 cursor-pointer rounded-full p-2 hover:text-red-500 hover:bg-red-100' />
+      {currentUserId === post.userId && (
+        <HiOutlineTrash
+          onClick={handleDelete}
+          className='h-8 w-8 cursor-pointer hover:text-red-500 hover:bg-red-100 p-2 rounded-full'
+        />
+      )}
     </div>
   );
 }
