@@ -15,6 +15,7 @@ export default function Input({ user }) {
     if (file) {
       setSelectedFile(file);
       setImageFileUrl(URL.createObjectURL(file));
+      //URL.createObjectURL(file) gives you a temporary local preview URL, it cannot replace a real upload to a server or cloud storage like Cloudinary.
     }
   };
 
@@ -63,7 +64,8 @@ export default function Input({ user }) {
               hidden
               onChange={addImageToPost}
             />
-            <input name='user' defaultValue={JSON.stringify(user)} hidden />
+            <input name='user' defaultValue={JSON.stringify(user)} hidden />  
+            {/* this input adds user filed in formData for backend  */}
             <button
               type="submit"
               disabled={formState.submitting}

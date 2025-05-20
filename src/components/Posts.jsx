@@ -9,7 +9,7 @@ export default async function Post({ post }) {
     const userId = cookieStore.get('user_id')?.value;
   return (
     <div className='flex p-3 border-b border-gray-200 w-full hover:bg-gray-50'>
-      <Link href={`/users/${post?.username}`}>
+      <Link href={`/user/${post?.username}`}>
         <img
           src={post?.profileImg}
           alt='user-img'
@@ -31,13 +31,14 @@ export default async function Post({ post }) {
           </div>
           <HiDotsHorizontal className='text-sm' />
         </div>
+        
         <Link href={`/posts/${post?._id}`}>
           <p className='text-gray-800 text-sm my-3 w-full'>{post?.text}</p>
         </Link>
         <Link href={`/posts/${post?._id}`}>
           <img src={post?.image} className='rounded-2xl mr-2' />
         </Link>
-        <Icons post={post} id={post.id} currentUserId={userId} />
+        <Icons post={post} currentUserId={userId} />
       </div>
     </div>
   );

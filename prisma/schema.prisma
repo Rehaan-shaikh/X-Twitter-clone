@@ -39,7 +39,7 @@ model Post {
 
   comments    Comment[]
 
-  likes       User[]     @relation("PostLikes") 
+  likes       User[]     @relation("PostLikes") //many to many RELATION creates another table of 2 pk of 2 tables
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma/prisma';
 import { uploadImage } from '../../../middleware';
 import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
 export async function Post(prevState, formData) {
   const content = formData.get('content');
@@ -23,6 +24,8 @@ export async function Post(prevState, formData) {
       username : user.username,
       user: {
         connect: { id: user.id },
+        // You're telling Prisma:
+        // 👉 "Don't create a new user, just link this post to an existing user whose id is user.id." So it fills the foreign key userId in your Post model.
       },
     },
   });
@@ -39,6 +42,16 @@ export async function getallPosts() {
   return feedPosts
 }
 
+export async function getPostsById(postId) {
+  const Post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!Post) {
+      return { error: 'Post not found' };
+    }
+  revalidatePath('/');
+  return Post;
+}
+
+
 export async function toggleLikePost(postId) {
   const cookieStore = await cookies();
   const userId = cookieStore.get('user_id')?.value;
@@ -49,14 +62,18 @@ export async function toggleLikePost(postId) {
     where: { id: postId },
     include: { likes: true },
   });
+  // post.likes is an array of User objects — all the users who have liked the post 
 
   const alreadyLiked = post.likes.some((user) => user.id === userId);
+  //This checks if at least one item in the array passes a condition and returns true or false.
 
   const updatedPost = await prisma.post.update({
     where: { id: postId },
     data: {
       likes: {
         [alreadyLiked ? 'disconnect' : 'connect']: { id: userId },
+        // Toggle like: if user already liked, disconnect; else, connect the user to the post's likes
+        // e.g., if userId = 'u1' liked postId = 'p1', then disconnect removes the like; connect adds it
       },
     },
     include: {
@@ -87,9 +104,14 @@ export async function deletePost(postId) {
     }
 
     await prisma.post.delete({ where: { id: postId } });
+    revalidatePath('/');
     return { success: true };
   } catch (error) {
     console.error('Error deleting post:', error);
     return { error: 'Something went wrong' };
   }
 }
+
+
+
+

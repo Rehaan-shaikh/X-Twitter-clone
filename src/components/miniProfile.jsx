@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/avatar";
 
 const MiniProfile = ({ user }) => {
+  //we are propdrilling cause the user can beget by getcurrentuser fun and it requires cookies which we cant use in server component
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
