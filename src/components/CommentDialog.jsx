@@ -12,30 +12,41 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
 import { getPostsById } from '@/lib/actions/post';
+import { useFormState } from 'react-dom';
+import { getCurrentUser } from '@/lib/actions/user';
+import { getCommentsByPostId, storeComment } from '@/lib/actions/comment';
+import CommentList from './CommentList';
 
 export default function CommentDialog({ open, onOpenChange, postId }) {
   const [comment, setComment] = useState('');
+  const [comments, setComments] = useState([]);
   const [post, setPost] = useState(null);
 
-  // 🔁 Fetch post details when dialog opens
-  useEffect(() => {
-    if (!open) return;
-    const fetchPost = async () => {
-      const postData = await getPostsById(postId);
-      console.log(postData)
-      console.log(postId)
-      setPost(postData);
-    };
-    fetchPost();
-  }, [open, postId]);
+  // const [formState , formAction] = useFormState(postComment , {})
 
-  const handleComment = async (e) => {
-    e.preventDefault();
-    console.log('Post ID:', postId);
-    console.log('Comment:', comment);
-    setComment('');
-    onOpenChange(false);
+  // 🔁 Fetch post details when dialog opens
+useEffect(() => {
+  if (!open) return;
+  const fetchPostAndComments = async () => {
+    const postData = await getPostsById(postId);
+    const commentData = await getCommentsByPostId(postId);
+    setPost(postData);
+    setComments(commentData);
   };
+  fetchPostAndComments();
+}, [open, postId]);
+
+const handleComment = async (e) => {
+  e.preventDefault();
+  try {
+    await storeComment(postId, comment);
+    setComment('');
+    const updatedComments = await getCommentsByPostId(postId); // refresh
+    setComments(updatedComments);
+  } catch (err) {
+    console.error('Failed to post comment:', err);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,7 +72,7 @@ export default function CommentDialog({ open, onOpenChange, postId }) {
             </div>
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Loading post...</p>
+          <p className="text-sm text-gray-400">Loading ...</p>
         )}
 
         {/* Comment Input */}
@@ -76,6 +87,11 @@ export default function CommentDialog({ open, onOpenChange, postId }) {
             Post Comment
           </Button>
         </form>
+        {/* all comment of this post */}
+        <h3 className="text-base font-semibold text-gray-800 mt-6 mb-2 border-b pb-1">
+          All Comments
+        </h3>
+        <CommentList comments={comments} />
       </DialogContent>
     </Dialog>
   );
