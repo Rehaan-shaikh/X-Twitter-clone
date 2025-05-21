@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma/prisma';
 import { getCurrentUser } from './user';
+import { revalidatePath } from 'next/cache';
 
 export async function storeComment(postId, commentText) {
   const user = await getCurrentUser();
@@ -17,6 +18,7 @@ export async function storeComment(postId, commentText) {
       profileImg: user.avatar,
     },
   });
+  revalidatePath('/');
 
   return newComment;
 }
@@ -25,6 +27,14 @@ export async function storeComment(postId, commentText) {
 export async function getCommentsByPostId(postId) {
   return await prisma.comment.findMany({
     where: { postId },
-    orderBy: { createdAt: 'desc' }, // latest first
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: {
+        select: {
+          username: true,
+          avatar: true, // ✅ this exists in your User model
+        },
+      },
+    },
   });
 }

@@ -43,13 +43,17 @@ export async function getallPosts() {
 }
 
 export async function getPostsById(postId) {
-  const Post = await prisma.post.findUnique({ where: { id: postId } });
-    if (!Post) {
-      return { error: 'Post not found' };
-    }
-  revalidatePath('/');
+  const Post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (!Post) {
+    return { error: 'Post not found' };
+  }
+
   return Post;
 }
+
 
 
 export async function toggleLikePost(postId) {
@@ -105,6 +109,7 @@ export async function deletePost(postId) {
 
     await prisma.post.delete({ where: { id: postId } });
     revalidatePath('/');
+    // Use revalidatePath() only in a form action, mutation function, or API route, not in fetch/query functions.
     return { success: true };
   } catch (error) {
     console.error('Error deleting post:', error);
