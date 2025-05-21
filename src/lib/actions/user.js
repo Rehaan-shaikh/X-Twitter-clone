@@ -170,3 +170,56 @@ export async function UpdateUserProfile(prevState, formData) {
     return { error: 'Profile update failed' };
   }
 }
+
+export async function getUserByUsername(username) {
+  try {
+    return await prisma.user.findUnique({
+      where: { username },
+      include: {
+        followers: true,
+        following: true,
+      },
+    });
+  } catch (error) {
+    console.error('Error in getUserByUsername:', error);
+    return null;
+  }
+}
+
+export async function toggleFollowUser(profileUserId) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser || !currentUser.id) throw new Error('Not authenticated');
+  if (currentUser.id === profileUserId) throw new Error('You cannot follow yourself');
+
+  const existingFollow = await prisma.userFollow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: currentUser.id,
+        followingId: profileUserId,
+      },
+    },
+  });
+
+  if (existingFollow) {
+    // Unfollow
+    await prisma.userFollow.delete({
+      where: {
+        followerId_followingId: {
+          followerId: currentUser.id,
+          followingId: profileUserId,
+        },
+      },
+    });
+  } else {
+    // Follow
+    await prisma.userFollow.create({
+      data: {
+        followerId: currentUser.id,
+        followingId: profileUserId,
+      },
+    });
+  }
+
+  revalidatePath(`/user/${profileUserId}`);
+}
+

@@ -117,6 +117,42 @@ export async function deletePost(postId) {
   }
 }
 
+export async function getPostsByUserId(userId) {
+  try {
+    return await prisma.post.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        likes: true,
+        comments: true,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting posts by userId:', error);
+    return [];
+  }
+}
 
 
+export const searchPostsByTerm = async (searchTerm) => {
+  try {
+    const decodedTerm = decodeURIComponent(searchTerm);
 
+    const posts = await prisma.post.findMany({
+      where: {
+        OR: [
+          { username: { contains: decodedTerm, mode: 'insensitive' } },
+          { text: { contains: decodedTerm, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return posts;
+  } catch (err) {
+    console.error('Failed to search posts:', err);
+    return [];
+  }
+};

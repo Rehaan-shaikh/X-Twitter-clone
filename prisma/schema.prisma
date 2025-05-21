@@ -14,22 +14,32 @@ model User {
   password    String
   avatar      String
 
-  posts       Post[]    
-  comments    Comment[] 
+  posts       Post[]
+  comments    Comment[]
 
-  likedPosts  Post[]    @relation("PostLikes") 
+  likedPosts  Post[]    @relation("PostLikes")
 
-  followers   User[]    @relation("UserFollows")
-  following   User[]    @relation("UserFollows")
+  followers   UserFollow[] @relation("followers")
+  following   UserFollow[] @relation("following")
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
 
+model UserFollow {
+  followerId  String
+  followingId String
+
+  follower    User   @relation("following", fields: [followerId], references: [id])
+  following   User   @relation("followers", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+}
+
 model Post {
   id          String     @id @default(cuid())
   text        String
-  image       String?   
+  image       String?
 
   userId      String
   user        User       @relation(fields: [userId], references: [id])
@@ -39,7 +49,7 @@ model Post {
 
   comments    Comment[]
 
-  likes       User[]     @relation("PostLikes") //many to many RELATION creates another table of 2 pk of 2 tables
+  likes       User[]     @relation("PostLikes")
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
