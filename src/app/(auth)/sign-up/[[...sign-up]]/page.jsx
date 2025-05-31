@@ -24,7 +24,7 @@ export default function Page() {
   function handleAvatarChange(e) {
     const file = e.target.files && e.target.files[0];
     if (file) {
-      setAvatarPreview(URL.createObjectURL(file));
+      setAvatarPreview(URL.createObjectURL(file));  //to hold the preview of the image temporarily
     } else {
       setAvatarPreview(null);
     }

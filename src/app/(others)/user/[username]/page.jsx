@@ -14,7 +14,7 @@ export default async function UserPage({ params }) {
 
   try {
     const username = params.username; // ✅ Fix: No await needed
-    data = await getUserByUsername(username);
+    data = await getUserByUsername(username);  //the data VAriable INCLUDES FOLLOWERS, FOLLOWING TOO
 
     if (data) {
       const posts = await getPostsByUserId(data.id);
@@ -48,6 +48,7 @@ export default async function UserPage({ params }) {
                 alt="Profile"
                 className="h-16 w-16 rounded-full object-cover"
               />
+              
               <div>
                 <h2 className="text-xl font-bold">
                   {data.firstName

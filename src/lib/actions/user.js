@@ -57,7 +57,7 @@ export async function SignIn(prevstate, formData) {
       return { error: 'Incorrect password' };
     }
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set('user_id', user.id, {
       httpOnly: true,
       secure: true,
@@ -193,7 +193,10 @@ export async function toggleFollowUser(profileUserId) {
 
   const existingFollow = await prisma.userFollow.findUnique({
     where: {
-      followerId_followingId: {
+      followerId_followingId: {  
+        //followerId_followingId is a composite unique key in your Prisma schema.
+        // It combines two fields:
+        // followerId followingId
         followerId: currentUser.id,
         followingId: profileUserId,
       },

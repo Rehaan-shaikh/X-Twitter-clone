@@ -66,8 +66,8 @@ export async function toggleLikePost(postId) {
     where: { id: postId },
     include: { likes: true },
   });
+  
   // post.likes is an array of User objects — all the users who have liked the post 
-
   const alreadyLiked = post.likes.some((user) => user.id === userId);
   //This checks if at least one item in the array passes a condition and returns true or false.
 
