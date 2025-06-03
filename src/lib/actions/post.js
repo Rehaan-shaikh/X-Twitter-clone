@@ -29,7 +29,7 @@ export async function Post(prevState, formData) {
       },
     },
   });
-
+  revalidatePath('/')
   return { success: true };
 }
 
