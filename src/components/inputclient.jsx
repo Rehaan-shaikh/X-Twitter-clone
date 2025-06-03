@@ -4,7 +4,7 @@ import { HiOutlinePhotograph } from 'react-icons/hi';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Post } from '@/lib/actions/post';
 
-export default function Input({ user }) {
+export default function InputClient({ user }) {
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const imagePickRef = useRef(null);
